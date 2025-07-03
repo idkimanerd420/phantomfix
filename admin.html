@@ -43,9 +43,7 @@
     const uidDisplay = document.createElement('p');
     uidDisplay.textContent = 'Your Firebase UID: ' + user.uid;
     document.body.prepend(uidDisplay);
-
-    // ... rest of your existing code ...
-    else {
+    
       if (user) {
         if (user.uid === allowedUID || true) { // remove "|| true" after testing
           currentUserUID = user.uid;
