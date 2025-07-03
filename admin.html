@@ -37,7 +37,15 @@
     let currentUserUID = null;
     const allowedUID = "adminUID"; // TODO: Replace with your Firebase UID (I'll show you how)
 
-    onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, user => {
+  if (user) {
+    // Show your UID right on the page so you can copy it easily
+    const uidDisplay = document.createElement('p');
+    uidDisplay.textContent = 'Your Firebase UID: ' + user.uid;
+    document.body.prepend(uidDisplay);
+
+    // ... rest of your existing code ...
+  } else {
       if (user) {
         if (user.uid === allowedUID || true) { // remove "|| true" after testing
           currentUserUID = user.uid;
