@@ -36,23 +36,22 @@
     const blogForm = document.getElementById('blog-form');
 
     let currentUserUID = null;
-    const allowedUID = "adminUID"; // Replace this later with your real UID
+    const allowedUID = "adminUID"; // Replace with your actual UID after you get it
 
     onAuthStateChanged(auth, user => {
-      // Remove any old UID display first
       const oldUID = document.getElementById('uid-display');
       if (oldUID) oldUID.remove();
 
       if (user) {
         currentUserUID = user.uid;
 
-        // Show UID on top of page
+        // Show UID on top
         const uidDisplay = document.createElement('div');
         uidDisplay.id = 'uid-display';
         uidDisplay.textContent = 'Your Firebase UID: ' + currentUserUID;
         document.body.prepend(uidDisplay);
 
-        if (user.uid === allowedUID || true) { // remove '|| true' after testing
+        if (user.uid === allowedUID || true) { // remove '|| true' after you replace allowedUID
           loginForm.style.display = 'none';
           adminPanel.style.display = 'block';
           loadPosts();
@@ -96,12 +95,30 @@
         const post = docSnap.data();
         const div = document.createElement('div');
         div.className = 'post';
-        div.innerHTML = `
-          <h3>${post.title}</h3>
-          <p>${post.content}</p>
-          <button onclick="editPost('${docSnap.id}', '${encodeURIComponent(post.title)}', '${encodeURIComponent(post.content)}')">Edit</button>
-          <button onclick="deletePost('${docSnap.id}')">Delete</button>
-        `;
+
+        const titleEl = document.createElement('h3');
+        titleEl.textContent = post.title;
+
+        const contentEl = document.createElement('p');
+        contentEl.textContent = post.content;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => {
+          editPost(docSnap.id, post.title, post.content);
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', () => {
+          deletePost(docSnap.id);
+        });
+
+        div.appendChild(titleEl);
+        div.appendChild(contentEl);
+        div.appendChild(editBtn);
+        div.appendChild(deleteBtn);
+
         postsList.appendChild(div);
       });
     }
@@ -112,8 +129,8 @@
     };
 
     window.editPost = function(id, title, content) {
-      const newTitle = prompt('Edit Title', decodeURIComponent(title));
-      const newContent = prompt('Edit Content', decodeURIComponent(content));
+      const newTitle = prompt('Edit Title', title);
+      const newContent = prompt('Edit Content', content);
       if (newTitle && newContent) {
         updateDoc(doc(db, 'posts', id), { title: newTitle, content: newContent });
         loadPosts();
