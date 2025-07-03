@@ -35,23 +35,20 @@
     const postsList = document.getElementById('posts');
     const blogForm = document.getElementById('blog-form');
 
-    let currentUserUID = null;
-    const allowedUID = "adminUID"; // Replace with your actual UID after you get it
+    const allowedUID = "LjZ3kPPrubasepi4oVmmqg2Vh9c2";
 
     onAuthStateChanged(auth, user => {
       const oldUID = document.getElementById('uid-display');
       if (oldUID) oldUID.remove();
 
       if (user) {
-        currentUserUID = user.uid;
-
         // Show UID on top
         const uidDisplay = document.createElement('div');
         uidDisplay.id = 'uid-display';
-        uidDisplay.textContent = 'Your Firebase UID: ' + currentUserUID;
+        uidDisplay.textContent = 'Your Firebase UID: ' + user.uid;
         document.body.prepend(uidDisplay);
 
-        if (user.uid === allowedUID || true) { // remove '|| true' after you replace allowedUID
+        if (user.uid === allowedUID) {
           loginForm.style.display = 'none';
           adminPanel.style.display = 'block';
           loadPosts();
@@ -143,8 +140,10 @@
 
   <div id="login-form">
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Email" /><br />
-    <input type="password" id="password" placeholder="Password" /><br />
+    <input type="email" id="email" placeholder="Email" />
+    <br />
+    <input type="password" id="password" placeholder="Password" />
+    <br />
     <button id="login-btn">Login</button>
   </div>
 
@@ -152,8 +151,10 @@
     <button id="logout-btn">Logout</button>
     <h2>New Blog Post</h2>
     <form id="blog-form">
-      <input id="title" placeholder="Title" required /><br />
-      <textarea id="content" placeholder="Content" required></textarea><br />
+      <input id="title" placeholder="Title" required />
+      <br />
+      <textarea id="content" placeholder="Content" required></textarea>
+      <br />
       <button type="submit">Publish</button>
     </form>
 
