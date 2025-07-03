@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>PhantomFix Admin</title>
   <style>
     body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
@@ -9,6 +9,7 @@
     button { padding: 0.5rem 1rem; font-size: 1rem; margin-top: 0.5rem; }
     .post { border-left: 4px solid #333; padding-left: 1rem; margin-top: 2rem; background: #f5f5f5; padding: 1rem; }
     .post button { margin-right: 1rem; }
+    #uid-display { background: #222; color: #0f0; padding: 0.5rem; margin-bottom: 1rem; font-family: monospace; }
   </style>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -35,30 +36,35 @@
     const blogForm = document.getElementById('blog-form');
 
     let currentUserUID = null;
-    const allowedUID = "adminUID"; // TODO: Replace with your Firebase UID (I'll show you how)
+    const allowedUID = "adminUID"; // Replace this later with your real UID
 
-  onAuthStateChanged(auth, user => {
-  if (user) {
-    // Show your UID right on the page so you can copy it easily
-    const uidDisplay = document.createElement('p');
-    uidDisplay.textContent = 'Your Firebase UID: ' + user.uid;
-    document.body.prepend(uidDisplay);
-    
+    onAuthStateChanged(auth, user => {
+      // Remove any old UID display first
+      const oldUID = document.getElementById('uid-display');
+      if (oldUID) oldUID.remove();
+
       if (user) {
-        if (user.uid === allowedUID || true) { // remove "|| true" after testing
-          currentUserUID = user.uid;
+        currentUserUID = user.uid;
+
+        // Show UID on top of page
+        const uidDisplay = document.createElement('div');
+        uidDisplay.id = 'uid-display';
+        uidDisplay.textContent = 'Your Firebase UID: ' + currentUserUID;
+        document.body.prepend(uidDisplay);
+
+        if (user.uid === allowedUID || true) { // remove '|| true' after testing
           loginForm.style.display = 'none';
           adminPanel.style.display = 'block';
           loadPosts();
         } else {
-          alert('Unauthorized');
+          alert('Unauthorized user.');
           signOut(auth);
         }
       } else {
         loginForm.style.display = 'block';
         adminPanel.style.display = 'none';
       }
-    };
+    });
 
     document.getElementById('login-btn').onclick = async () => {
       const email = document.getElementById('email').value;
@@ -112,7 +118,7 @@
         updateDoc(doc(db, 'posts', id), { title: newTitle, content: newContent });
         loadPosts();
       }
-    }};
+    };
   </script>
 </head>
 <body>
@@ -120,8 +126,8 @@
 
   <div id="login-form">
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Password"><br>
+    <input type="email" id="email" placeholder="Email" /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
     <button id="login-btn">Login</button>
   </div>
 
@@ -129,8 +135,8 @@
     <button id="logout-btn">Logout</button>
     <h2>New Blog Post</h2>
     <form id="blog-form">
-      <input id="title" placeholder="Title" required><br>
-      <textarea id="content" placeholder="Content" required></textarea><br>
+      <input id="title" placeholder="Title" required /><br />
+      <textarea id="content" placeholder="Content" required></textarea><br />
       <button type="submit">Publish</button>
     </form>
 
