@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>PhantomFix Admin</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    input, textarea { width: 100%; margin: 0.5rem 0; padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; margin-top: 0.5rem; }
+    .post { border-left: 4px solid #333; padding-left: 1rem; margin-top: 2rem; background: #f5f5f5; padding: 1rem; }
+    .post button { margin-right: 1rem; }
+  </style>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -27,11 +34,20 @@
     const postsList = document.getElementById('posts');
     const blogForm = document.getElementById('blog-form');
 
+    let currentUserUID = null;
+    const allowedUID = "adminUID"; // TODO: Replace with your Firebase UID (I'll show you how)
+
     onAuthStateChanged(auth, user => {
       if (user) {
-        loginForm.style.display = 'none';
-        adminPanel.style.display = 'block';
-        loadPosts();
+        if (user.uid === allowedUID || true) { // remove "|| true" after testing
+          currentUserUID = user.uid;
+          loginForm.style.display = 'none';
+          adminPanel.style.display = 'block';
+          loadPosts();
+        } else {
+          alert('Unauthorized');
+          signOut(auth);
+        }
       } else {
         loginForm.style.display = 'block';
         adminPanel.style.display = 'none';
@@ -67,16 +83,30 @@
       snapshot.forEach(docSnap => {
         const post = docSnap.data();
         const div = document.createElement('div');
-        div.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>
-          <button onclick="deletePost('${docSnap.id}')">Delete</button>`;
+        div.className = 'post';
+        div.innerHTML = `
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <button onclick="editPost('${docSnap.id}', '${encodeURIComponent(post.title)}', '${encodeURIComponent(post.content)}')">Edit</button>
+          <button onclick="deletePost('${docSnap.id}')">Delete</button>
+        `;
         postsList.appendChild(div);
       });
     }
 
-    async function deletePost(id) {
+    window.deletePost = async function(id) {
       await deleteDoc(doc(db, 'posts', id));
       loadPosts();
-    }
+    };
+
+    window.editPost = function(id, title, content) {
+      const newTitle = prompt('Edit Title', decodeURIComponent(title));
+      const newContent = prompt('Edit Content', decodeURIComponent(content));
+      if (newTitle && newContent) {
+        updateDoc(doc(db, 'posts', id), { title: newTitle, content: newContent });
+        loadPosts();
+      }
+    };
   </script>
 </head>
 <body>
